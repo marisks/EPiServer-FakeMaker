@@ -12,6 +12,7 @@ namespace EPiFakeMaker.Examples
     {
         private FakeMaker _fake;
         private FakePage _root;
+        private FakePage _start;
 
         [SetUp]
         public void Setup()
@@ -21,7 +22,7 @@ namespace EPiFakeMaker.Examples
             // Arrange: create a page tree
             _root = FakePage.Create("root");
 
-            var start = FakePage
+            _start = FakePage
                 .Create("Start")
                 .ChildOf(_root)
                 .AsStartPage();
@@ -41,7 +42,7 @@ namespace EPiFakeMaker.Examples
 
             FakePage
                 .Create("Our sub page")
-                .ChildOf(start);
+                .ChildOf(_start);
 
             // Arrange: add the entire page tree to the episerver repository.
             _fake.AddToRepository(_root);
@@ -110,6 +111,20 @@ namespace EPiFakeMaker.Examples
 
             // Assert
             Assert.That(pages.Count(), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Get_ancestors()
+        {
+            var child = FakePage
+                .Create("Child page")
+                .ChildOf(_start);
+            var repository = _fake.ContentRepository;
+
+            // Act
+            var ancestors = repository.GetAncestors(child.Content.ContentLink);
+
+            Assert.That(ancestors.Count(), Is.EqualTo(2));
         }
     }
 
